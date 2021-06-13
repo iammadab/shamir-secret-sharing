@@ -40,9 +40,20 @@ func evaluatePolynomial(polynomial []int, point int) Point {
 	return Point{X: point, Y: result}
 }
 
-func constructSecret(shares []Point) float64 {
-	fmt.Println(extractCordinates(shares))
-	return 0.5
+func constructSecret(shares []Point) int {
+  xs, ys := extractCordinates(shares)
+  x := 0
+  result := 0
+  for i := 0; i < len(ys); i++ {
+    currProduct := 1
+    for j := 0; j < len(xs); j++ {
+      if i != j {
+        currProduct *= (x - xs[j])/(xs[i] - xs[j])
+      }
+    }
+    result += ys[i] * currProduct
+  }
+  return result
 }
 
 func extractCordinates(points []Point) ([]int, []int) {
