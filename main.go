@@ -40,16 +40,26 @@ func evaluatePolynomial(polynomial []int, point int) Point {
 	return Point{X: point, Y: result}
 }
 
-
 func constructSecret(shares []Point) float64 {
-  return 0.5
+	fmt.Println(extractCordinates(shares))
+	return 0.5
+}
+
+func extractCordinates(points []Point) ([]int, []int) {
+	x := make([]int, len(points))
+	y := make([]int, len(points))
+	for i := 0; i < len(points); i++ {
+		x[i] = points[i].X
+		y[i] = points[i].Y
+	}
+	return x, y
 }
 
 func main() {
 	//rand.Seed(time.Now().UnixNano())
 	fmt.Println("Let's get started")
-  shares := makeShares(1234, 2, 2)
-  fmt.Println(shares)
-  secret := constructSecret(shares)
-  fmt.Println(secret)
+	shares := makeShares(1234, 2, 2)
+	fmt.Println(shares)
+	secret := constructSecret(shares)
+	fmt.Println(secret)
 }
