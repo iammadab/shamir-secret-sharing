@@ -41,24 +41,24 @@ func evaluatePolynomial(polynomial []int, point int) Point {
 }
 
 func constructSecret(shares []Point) float64 {
-  xs, ys := extractCordinates(shares)
-  x := 0
-  result := 0.0
-  for i := 0; i < len(ys); i++ {
-    currProduct := 1.0
-    for j := 0; j < len(xs); j++ {
-      if i != j {
-        a := float64(x - xs[j])
-        b := float64(xs[i] - xs[j])
-        c := a / b
-        currProduct *= c
-        fmt.Println(a, b, c)
-        //currProduct *= (x - xs[j])/(xs[i] - xs[j])
-      }
-    }
-    result += float64(ys[i]) * currProduct
-  }
-  return result
+	xs, ys := extractCordinates(shares)
+	x := 0
+	result := 0.0
+	for i := 0; i < len(ys); i++ {
+		currProduct := 1.0
+		for j := 0; j < len(xs); j++ {
+			if i != j {
+				a := float64(x - xs[j])
+				b := float64(xs[i] - xs[j])
+				c := a / b
+				currProduct *= c
+				fmt.Println(a, b, c)
+				//currProduct *= (x - xs[j])/(xs[i] - xs[j])
+			}
+		}
+		result += float64(ys[i]) * currProduct
+	}
+	return result
 }
 
 func extractCordinates(points []Point) ([]int, []int) {
