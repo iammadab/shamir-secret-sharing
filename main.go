@@ -7,26 +7,24 @@ import (
 	"time"
 )
 
-const (
-  INTERCEPT = 0
-)
-
+// n - number of shares to generate
+// k - number of shares needed to reconstruct the secret
 // TODO: Use a more secure random number generator
-func makeShares(secret, minimum, share int) []int {
-  var curve = make([]int, minimum)
-  for i := 0; i < minimum; i++ {
-    if i == 0 {
-      curve[i] = secret
-      continue
-    }
-    curve[i] = rand.Intn(secret)
-  }
-  fmt.Println(curve)
-  var shares = make([]int, share)
-  for i := 0; i < share; i++ {
-    shares[i] = evaluatePolynomial(curve, i+1)
-  }
-  return shares
+func makeShares(secret, k, n int) []int {
+	var curve = make([]int, k)
+	for i := 0; i < k; i++ {
+		if i == 0 {
+			curve[i] = secret
+			continue
+		}
+		curve[i] = rand.Intn(secret)
+	}
+	fmt.Println(curve)
+	var shares = make([]int, n)
+	for i := 0; i < n; i++ {
+		shares[i] = evaluatePolynomial(curve, i+1)
+	}
+	return shares
 }
 
 func evaluatePolynomial(polynomial []int, point int) int {
