@@ -7,21 +7,26 @@ import (
 	"time"
 )
 
+const (
+  INTERCEPT = 0
+)
+
 // TODO: Use a more secure random number generator
-func makeShares(secret int, minimum int, share int) []int {
-	var polynomial = make([]int, minimum+1)
-	polynomial[0] = secret
-	for i := 0; i < minimum; i++ {
-		polynomial[i+1] = rand.Intn(secret)
-	}
-	// Perform validation for number of share
-	var shares = make([]int, share)
-	for i := 0; i < share; i++ {
-		// Evaluates the polynomial f at f(1), f(2), ... f(n)
-		// n being the number of shares to be generated
-		shares[i] = evaluatePolynomial(polynomial, i+1)
-	}
-	return shares
+func makeShares(secret, minimum, share int) []int {
+  var curve = make([]int, minimum)
+  for i := 0; i < minimum; i++ {
+    if i == 0 {
+      curve[i] = secret
+      continue
+    }
+    curve[i] = rand.Intn(secret)
+  }
+  fmt.Println(curve)
+  var shares = make([]int, share)
+  for i := 0; i < share; i++ {
+    shares[i] = evaluatePolynomial(curve, i+1)
+  }
+  return shares
 }
 
 func evaluatePolynomial(polynomial []int, point int) int {
