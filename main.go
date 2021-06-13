@@ -25,11 +25,11 @@ func makeShares(secret int, minimum int, share int) []int {
 }
 
 func evaluatePolynomial(polynomial []int, point int) int{
-  var variables = make([]int, len(polynomial))
+  var result int
   for i := 0; i < len(polynomial); i++ {
-    variables[i] = powInt(point, i)
+    result += polynomial[i] * powInt(point, i)
   }
-  return 2
+  return result
 }
 
 func powInt(x, y int) int {
