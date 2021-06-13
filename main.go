@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
-	//"time"
+	"time"
 )
 
 type Point struct {
@@ -40,18 +40,23 @@ func evaluatePolynomial(polynomial []int, point int) Point {
 	return Point{X: point, Y: result}
 }
 
-func constructSecret(shares []Point) int {
+func constructSecret(shares []Point) float64 {
   xs, ys := extractCordinates(shares)
   x := 0
-  result := 0
+  result := 0.0
   for i := 0; i < len(ys); i++ {
-    currProduct := 1
+    currProduct := 1.0
     for j := 0; j < len(xs); j++ {
       if i != j {
-        currProduct *= (x - xs[j])/(xs[i] - xs[j])
+        a := float64(x - xs[j])
+        b := float64(xs[i] - xs[j])
+        c := a / b
+        currProduct *= c
+        fmt.Println(a, b, c)
+        //currProduct *= (x - xs[j])/(xs[i] - xs[j])
       }
     }
-    result += ys[i] * currProduct
+    result += float64(ys[i]) * currProduct
   }
   return result
 }
@@ -67,9 +72,9 @@ func extractCordinates(points []Point) ([]int, []int) {
 }
 
 func main() {
-	//rand.Seed(time.Now().UnixNano())
+	rand.Seed(time.Now().UnixNano())
 	fmt.Println("Let's get started")
-	shares := makeShares(1234, 2, 2)
+	shares := makeShares(1234, 2, 10)
 	fmt.Println(shares)
 	secret := constructSecret(shares)
 	fmt.Println(secret)
