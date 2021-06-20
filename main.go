@@ -12,6 +12,8 @@ type Point struct {
 	Y int
 }
 
+const prime = 97
+
 // n - number of shares to generate
 // k - number of shares needed to reconstruct the secret
 // TODO: Use a more secure random number generator
@@ -22,7 +24,7 @@ func makeShares(secret, k, n int) []Point {
 			curve[i] = secret
 			continue
 		}
-		curve[i] = rand.Intn(secret)
+		curve[i] = rand.Intn(prime)
 	}
 	fmt.Println(curve)
 	var shares = make([]Point, n)
@@ -52,7 +54,7 @@ func constructSecret(shares []Point) float64 {
 				b := float64(xs[i] - xs[j])
 				c := a / b
 				currProduct *= c
-				fmt.Println(a, b, c)
+				//fmt.Println(a, b, c)
 				//currProduct *= (x - xs[j])/(xs[i] - xs[j])
 			}
 		}
@@ -74,8 +76,8 @@ func extractCordinates(points []Point) ([]int, []int) {
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	fmt.Println("Let's get started")
-	shares := makeShares(1234, 2, 10)
-	fmt.Println(shares)
+	shares := makeShares(12, 2, 10)
+	fmt.Println("Shares", shares)
 	secret := constructSecret(shares)
 	fmt.Println(secret)
 }
