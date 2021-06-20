@@ -29,15 +29,16 @@ func makeShares(secret, k, n int) []Point {
 	fmt.Println(curve)
 	var shares = make([]Point, n)
 	for i := 0; i < n; i++ {
-		shares[i] = evaluatePolynomial(curve, i+1)
+		shares[i] = evaluatePolynomial(curve, i+1, prime)
 	}
 	return shares
 }
 
-func evaluatePolynomial(polynomial []int, point int) Point {
+func evaluatePolynomial(polynomial []int, point int, prime int) Point {
 	var result int
 	for i := 0; i < len(polynomial); i++ {
 		result += polynomial[i] * int(math.Pow(float64(point), float64(i)))
+    result %= prime
 	}
 	return Point{X: point, Y: result}
 }
