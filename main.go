@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
-	"time"
+	//"time"
 )
 
 type Point struct {
@@ -26,7 +26,7 @@ func makeShares(secret, k, n int) []Point {
 		}
 		curve[i] = rand.Intn(prime)
 	}
-	fmt.Println(curve)
+	fmt.Println("Curve", curve)
 	var shares = make([]Point, n)
 	for i := 0; i < n; i++ {
 		shares[i] = evaluatePolynomial(curve, i+1, prime)
@@ -38,12 +38,12 @@ func evaluatePolynomial(polynomial []int, point int, prime int) Point {
 	var result int
 	for i := 0; i < len(polynomial); i++ {
 		result += polynomial[i] * int(math.Pow(float64(point), float64(i)))
-    result %= prime
+		result %= prime
 	}
 	return Point{X: point, Y: result}
 }
 
-func constructSecret(shares []Point) float64 {
+func constructSecret(shares []Point, prime int) float64 {
 	xs, ys := extractCordinates(shares)
 	x := 0
 	result := 0.0
@@ -74,11 +74,27 @@ func extractCordinates(points []Point) ([]int, []int) {
 	return x, y
 }
 
+func extendedGcd(a, b int) (r, s, t int) {
+	// Make sure a is the bigger of the two
+	if a < b {
+		a, b = b, a
+	}
+	sa := [...]int{1, 0}
+	ta := [...]int{0, 1}
+	for b != 0 {
+		q := a / b
+		a, b = b, a%b
+		sa[0], sa[1] = sa[1], sa[0]-q*sa[1]
+		ta[0], ta[1] = ta[1], ta[0]-q*ta[1]
+	}
+	return a, sa[0], ta[0]
+}
+
 func main() {
-	rand.Seed(time.Now().UnixNano())
+	//rand.Seed(time.Now().UnixNano())
 	fmt.Println("Let's get started")
 	shares := makeShares(12, 2, 10)
 	fmt.Println("Shares", shares)
-	secret := constructSecret(shares)
+	secret := constructSecret(shares, prime)
 	fmt.Println(secret)
 }
