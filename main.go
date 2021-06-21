@@ -43,25 +43,32 @@ func evaluatePolynomial(polynomial []int, point int, prime int) Point {
 	return Point{X: point, Y: result}
 }
 
-func constructSecret(shares []Point, prime int) float64 {
+func constructSecret(shares []Point, prime int) int {
+	fmt.Println("Prime", prime)
 	xs, ys := extractCordinates(shares)
 	x := 0
-	result := 0.0
+	result := 0
 	for i := 0; i < len(ys); i++ {
-		currProduct := 1.0
+		currProduct := 1
 		for j := 0; j < len(xs); j++ {
 			if i != j {
-				a := float64(x - xs[j])
-				b := float64(xs[i] - xs[j])
-				c := a / b
+				ai := (x - xs[j])
+				bi := (xs[i] - xs[j])
+				fmt.Println("a,b", ai, bi)
+				a := mod(ai, prime)
+				b := mod(bi, prime)
+				fmt.Println("mod a,b", a, b)
+				_, _, bInverse := extendedGcd(prime, b)
+				bInverse = mod(bInverse, prime)
+				fmt.Println(b, bInverse)
+				c := mod(a*bInverse, prime)
+				fmt.Println(c)
 				currProduct *= c
-				//fmt.Println(a, b, c)
-				//currProduct *= (x - xs[j])/(xs[i] - xs[j])
 			}
 		}
-		result += float64(ys[i]) * currProduct
+		result += ys[i] * currProduct
 	}
-	return result
+	return mod(result, prime)
 }
 
 func extractCordinates(points []Point) ([]int, []int) {
@@ -74,6 +81,9 @@ func extractCordinates(points []Point) ([]int, []int) {
 	return x, y
 }
 
+// This will be used to compute inverse of an element a
+// in a finite field n
+// t = inverse of a in field n
 func extendedGcd(a, b int) (r, s, t int) {
 	// Make sure a is the bigger of the two
 	if a < b {
@@ -90,10 +100,14 @@ func extendedGcd(a, b int) (r, s, t int) {
 	return a, sa[0], ta[0]
 }
 
+func mod(a, b int) int {
+	return (a%b + b) % b
+}
+
 func main() {
 	//rand.Seed(time.Now().UnixNano())
 	fmt.Println("Let's get started")
-	shares := makeShares(12, 2, 10)
+	shares := makeShares(35, 2, 10)
 	fmt.Println("Shares", shares)
 	secret := constructSecret(shares, prime)
 	fmt.Println(secret)
