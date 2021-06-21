@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
-	//"time"
+	"time"
 )
 
 type Point struct {
@@ -44,7 +44,6 @@ func evaluatePolynomial(polynomial []int, point int, prime int) Point {
 }
 
 func constructSecret(shares []Point, prime int) int {
-	fmt.Println("Prime", prime)
 	xs, ys := extractCordinates(shares)
 	x := 0
 	result := 0
@@ -52,17 +51,11 @@ func constructSecret(shares []Point, prime int) int {
 		currProduct := 1
 		for j := 0; j < len(xs); j++ {
 			if i != j {
-				ai := (x - xs[j])
-				bi := (xs[i] - xs[j])
-				fmt.Println("a,b", ai, bi)
-				a := mod(ai, prime)
-				b := mod(bi, prime)
-				fmt.Println("mod a,b", a, b)
+				a := mod((x - xs[j]), prime)
+				b := mod((xs[i] - xs[j]), prime)
 				_, _, bInverse := extendedGcd(prime, b)
 				bInverse = mod(bInverse, prime)
-				fmt.Println(b, bInverse)
 				c := mod(a*bInverse, prime)
-				fmt.Println(c)
 				currProduct *= c
 			}
 		}
@@ -105,9 +98,9 @@ func mod(a, b int) int {
 }
 
 func main() {
-	//rand.Seed(time.Now().UnixNano())
+	rand.Seed(time.Now().UnixNano())
 	fmt.Println("Let's get started")
-	shares := makeShares(35, 2, 10)
+	shares := makeShares(32, 2, 10)
 	fmt.Println("Shares", shares)
 	secret := constructSecret(shares, prime)
 	fmt.Println(secret)
