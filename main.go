@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
-	"time"
+	//"time"
 )
 
 type Point struct {
@@ -12,7 +12,7 @@ type Point struct {
 	Y int
 }
 
-const prime = 97
+const prime = 7919
 const INTERCEPT = 0
 
 // n - number of shares to generate
@@ -37,12 +37,12 @@ func constructPolynomialOfDegree(degree int) []int {
 func pickNPointsFromPolynomial(polynomial []int, n int) []Point {
 	var shares = make([]Point, n)
 	for i := 0; i < n; i++ {
-		shares[i] = evaluatePolynomial(polynomial, i+1, prime)
+		shares[i] = evaluatePolynomial(polynomial, i+1)
 	}
 	return shares
 }
 
-func evaluatePolynomial(polynomial []int, point int, prime int) Point {
+func evaluatePolynomial(polynomial []int, point int) Point {
 	var result int
 	for i := 0; i < len(polynomial); i++ {
 		result += polynomial[i] * pow(point, i)
@@ -55,7 +55,7 @@ func pow(x, y int) int {
 	return int(math.Pow(float64(x), float64(y)))
 }
 
-func constructSecret(shares []Point, prime int) int {
+func constructSecret(shares []Point) int {
 	xs, ys := extractCordinates(shares)
 	result := 0
 	for i := 0; i < len(ys); i++ {
@@ -63,14 +63,15 @@ func constructSecret(shares []Point, prime int) int {
 		for j := 0; j < len(xs); j++ {
 			if i != j {
 				a := xs[j]
-				b := mod((xs[j] - xs[i]), prime)
+				b := mod((xs[j] - xs[i]))
 				c := divmod(a, b)
-				currProduct *= c
+        currProduct = mod(currProduct * c)
 			}
 		}
-		result += ys[i] * currProduct
+		result += mod(ys[i] * currProduct)
+    result = mod(result)
 	}
-	return mod(result, prime)
+	return mod(result)
 }
 
 func extractCordinates(points []Point) ([]int, []int) {
@@ -85,8 +86,8 @@ func extractCordinates(points []Point) ([]int, []int) {
 
 func divmod(a, b int) int {
 	_, _, bInverse := extendedGcd(prime, b)
-	bInverse = mod(bInverse, prime)
-	return mod(a*bInverse, prime)
+	bInverse = mod(bInverse)
+	return mod(a*bInverse)
 }
 
 // This will be used to compute inverse of an element a
@@ -108,15 +109,15 @@ func extendedGcd(a, b int) (r, s, t int) {
 	return a, sa[0], ta[0]
 }
 
-func mod(a, b int) int {
-	return (a%b + b) % b
+func mod(a int) int {
+	return (a%prime + prime) % prime
 }
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
+	//rand.Seed(time.Now().UnixNano())
 	fmt.Println("Let's get started")
-	shares := generateShares(32, 9, 10)
+	shares := generateShares(32, 2, 10)
 	fmt.Println("Shares", shares)
-	secret := constructSecret(shares, prime)
+	secret := constructSecret(shares)
 	fmt.Println(secret)
 }
