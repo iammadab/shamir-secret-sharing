@@ -13,23 +13,31 @@ type Point struct {
 }
 
 const prime = 97
+const INTERCEPT = 0
 
 // n - number of shares to generate
 // k - number of shares needed to reconstruct the secret
 // TODO: Use a more secure random number generator
-func makeShares(secret, k, n int) []Point {
-	var curve = make([]int, k)
-	for i := 0; i < k; i++ {
-		if i == 0 {
-			curve[i] = secret
-			continue
-		}
-		curve[i] = rand.Intn(prime)
-	}
+func generateShares(secret, k, n int) []Point {
+	var curve = constructPolynomialOfDegree(k)
+	curve[INTERCEPT] = secret
 	fmt.Println("Curve", curve)
+	var shares = pickNPointsFromPolynomial(curve, n)
+	return shares
+}
+
+func constructPolynomialOfDegree(degree int) []int {
+	var polynomial = make([]int, degree)
+	for i := 0; i < degree; i++ {
+		polynomial[i] = rand.Intn(prime)
+	}
+	return polynomial
+}
+
+func pickNPointsFromPolynomial(polynomial []int, n int) []Point {
 	var shares = make([]Point, n)
 	for i := 0; i < n; i++ {
-		shares[i] = evaluatePolynomial(curve, i+1, prime)
+		shares[i] = evaluatePolynomial(polynomial, i+1, prime)
 	}
 	return shares
 }
@@ -37,25 +45,26 @@ func makeShares(secret, k, n int) []Point {
 func evaluatePolynomial(polynomial []int, point int, prime int) Point {
 	var result int
 	for i := 0; i < len(polynomial); i++ {
-		result += polynomial[i] * int(math.Pow(float64(point), float64(i)))
+		result += polynomial[i] * pow(point, i)
 		result %= prime
 	}
 	return Point{X: point, Y: result}
 }
 
+func pow(x, y int) int {
+	return int(math.Pow(float64(x), float64(y)))
+}
+
 func constructSecret(shares []Point, prime int) int {
 	xs, ys := extractCordinates(shares)
-	x := 0
 	result := 0
 	for i := 0; i < len(ys); i++ {
 		currProduct := 1
 		for j := 0; j < len(xs); j++ {
 			if i != j {
-				a := mod((x - xs[j]), prime)
-				b := mod((xs[i] - xs[j]), prime)
-				_, _, bInverse := extendedGcd(prime, b)
-				bInverse = mod(bInverse, prime)
-				c := mod(a*bInverse, prime)
+				a := xs[j]
+				b := mod((xs[j] - xs[i]), prime)
+				c := divmod(a, b)
 				currProduct *= c
 			}
 		}
@@ -72,6 +81,12 @@ func extractCordinates(points []Point) ([]int, []int) {
 		y[i] = points[i].Y
 	}
 	return x, y
+}
+
+func divmod(a, b int) int {
+	_, _, bInverse := extendedGcd(prime, b)
+	bInverse = mod(bInverse, prime)
+	return mod(a*bInverse, prime)
 }
 
 // This will be used to compute inverse of an element a
@@ -100,7 +115,7 @@ func mod(a, b int) int {
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	fmt.Println("Let's get started")
-	shares := makeShares(32, 2, 10)
+	shares := generateShares(32, 9, 10)
 	fmt.Println("Shares", shares)
 	secret := constructSecret(shares, prime)
 	fmt.Println(secret)
