@@ -123,7 +123,7 @@ func mod(a int) int {
 func main() {
 	//rand.Seed(time.Now().UnixNano())
 	fmt.Println("Let's get started")
-	shares := generateShares(5849, 1000, 1000)
+	shares := generateShares(5849, 2, 10)
 	fmt.Println("Shares", shares)
 	secret := constructSecret(shares)
 	fmt.Println(secret)
