@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"math"
+	//"math"
 	"math/rand"
 	//"time"
 )
@@ -45,14 +45,20 @@ func pickNPointsFromPolynomial(polynomial []int, n int) []Point {
 func evaluatePolynomial(polynomial []int, point int) Point {
 	var result int
 	for i := 0; i < len(polynomial); i++ {
-		result += polynomial[i] * pow(point, i)
-		result %= prime
+		result += mod(polynomial[i]) * mod(pow(point, i))
+		result = mod(result)
 	}
 	return Point{X: point, Y: result}
 }
 
 func pow(x, y int) int {
-	return int(math.Pow(float64(x), float64(y)))
+	result := 1
+	for i := 0; i < y; i++ {
+		result *= x
+		result = mod(result)
+	}
+	return result
+	//return int(math.Pow(float64(x), float64(y)))
 }
 
 func constructSecret(shares []Point) int {
@@ -65,11 +71,11 @@ func constructSecret(shares []Point) int {
 				a := xs[j]
 				b := mod((xs[j] - xs[i]))
 				c := divmod(a, b)
-        currProduct = mod(currProduct * c)
+				currProduct = mod(currProduct * c)
 			}
 		}
 		result += mod(ys[i] * currProduct)
-    result = mod(result)
+		result = mod(result)
 	}
 	return mod(result)
 }
@@ -87,7 +93,7 @@ func extractCordinates(points []Point) ([]int, []int) {
 func divmod(a, b int) int {
 	_, _, bInverse := extendedGcd(prime, b)
 	bInverse = mod(bInverse)
-	return mod(a*bInverse)
+	return mod(a * bInverse)
 }
 
 // This will be used to compute inverse of an element a
@@ -110,13 +116,14 @@ func extendedGcd(a, b int) (r, s, t int) {
 }
 
 func mod(a int) int {
+	//fmt.Println(a, prime)
 	return (a%prime + prime) % prime
 }
 
 func main() {
 	//rand.Seed(time.Now().UnixNano())
 	fmt.Println("Let's get started")
-	shares := generateShares(32, 2, 10)
+	shares := generateShares(5849, 1000, 1000)
 	fmt.Println("Shares", shares)
 	secret := constructSecret(shares)
 	fmt.Println(secret)
