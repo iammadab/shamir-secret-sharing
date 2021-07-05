@@ -2,9 +2,8 @@ package main
 
 import (
 	"fmt"
-	//"math"
 	"math/rand"
-	//"time"
+	"time"
 )
 
 type Point struct {
@@ -58,7 +57,6 @@ func pow(x, y int) int {
 		result = mod(result)
 	}
 	return result
-	//return int(math.Pow(float64(x), float64(y)))
 }
 
 func constructSecret(shares []Point) int {
@@ -116,12 +114,11 @@ func extendedGcd(a, b int) (r, s, t int) {
 }
 
 func mod(a int) int {
-	//fmt.Println(a, prime)
 	return (a%prime + prime) % prime
 }
 
 func main() {
-	//rand.Seed(time.Now().UnixNano())
+	rand.Seed(time.Now().UnixNano())
 	fmt.Println("Let's get started")
 	shares := generateShares(5849, 2, 10)
 	fmt.Println("Shares", shares)
